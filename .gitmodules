@@ -1,0 +1,3 @@
+[submodule "src/libwebp"]
+	path = src/libwebp
+	url = https://github.com/webmproject/libwebp.git
