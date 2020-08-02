@@ -5,10 +5,7 @@
   "types": "./lib/src/webpxmux.d.ts",
   "author": "Makito <sumimakito@hotmail.com>",
   "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/SumiMakito/webpxmux.js.git"
-  },
+  "repository": "git://github.com/SumiMakito/webpxmux.js.git",
   "keywords": [
     "webp",
     "encode",
