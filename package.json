@@ -5,6 +5,23 @@
   "types": "./lib/src/webpxmux.d.ts",
   "author": "Makito <sumimakito@hotmail.com>",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SumiMakito/webpxmux.js.git"
+  },
+  "keywords": [
+    "webp",
+    "encode",
+    "decode",
+    "mux",
+    "demux",
+    "muxing",
+    "demuxing"
+  ],
+  "bugs": {
+    "url": "https://github.com/SumiMakito/webpxmux.js/issues"
+  },
+  "homepage": "https://github.com/SumiMakito/webpxmux.js#readme",
   "scripts": {
     "build": "yon run build:make && yon run build:js",
     "build:make": "emcmake cmake . && make -j4",
