@@ -49,6 +49,48 @@ Output:
 }
 ```
 
+### Using in browsers
+
+When using WebPXMux in browsers, the required WebAssembly cannot be auto
+looked up. Thus, you have to specify the path (relative to website root) 
+to the WebAssembly file using the constructor. (The specified 
+WebAssembly file path should be accessible from the browser.)
+
+```ts
+(constructor) WebPXMux(wasmPath?: string);
+```
+
+#### With Require.JS
+
+```html
+<script src="https://.../require.min.js"></script>
+```
+
+```js
+require(["./dist/webpxmux"], function (WebPXMux) {
+  var xMux = WebPXMux("./dist/webpxmux.wasm"); // <- IMPORTANT
+  xMux.waitRuntime().then(function () {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var data = new Uint8Array(reader.result);
+      xMux.decodeFrames(data).then(function (frames) {
+        console.log(frames);
+      });
+    };
+    reader.readAsArrayBuffer(new Blob([file]));
+  });
+});
+```
+
+#### With Webpack
+
+> Import/require `webpxmux.js` under the `dist/` directory instead.
+
+```js
+const WebPXMux = require("webpxmux/dist/webpxmux");
+const xMux = WebPXMux("./dist/webpxmux.wasm") // <- IMPORTANT
+```
+
 ## Usage
 
 ### Importing WebXMux to your project
@@ -89,7 +131,7 @@ await xMux.waitRuntime();
 xMux.waitRuntime().then(...);
 ```
 
-### Type: Frame and Frames
+### Type: Frame, Frames and Bitmap
 
 #### Frame
 
@@ -148,9 +190,31 @@ Background of the animated WebP image represented by a 32-bit unsigned integer i
 
 Array of frames in the animated WebP image.
 
+#### Bitmap
+
+```ts
+interface Bitmap {
+  width: number;
+  height: number;
+  rgba: Uint32Array;
+}
+```
+
+`width` and `height`
+
+Sizes of the image in pixels.
+
+`rgba`
+
+Stores the RGBA color information (in the `0xRRGGBBAA` order) of each pixel.
+
+Pixel data are ordered from left to right and then from top to bottom.
+
 ### Demuxing (Decoding frames)
 
-`(async) decodeFrames(webPData: Uint8Array): Promise<Frames>`
+```ts
+(async) decodeFrames(webPData: Uint8Array): Promise<Frames>
+```
 
 ```js
 const frames = await xMux.decodeFrames(buffer);
@@ -161,7 +225,9 @@ xMux.decodeFrames(buffer).then((frames) => ...);
 
 ### Muxing (Encoding frames)
 
-`(async) encodeFrames(frames: Frames): Promise<Uint8Array>`
+```ts
+(async) encodeFrames(frames: Frames): Promise<Uint8Array>
+```
 
 > The returned Uint8Array stores the data of the encoded
 > animated WebP image.
@@ -173,28 +239,33 @@ const uint8array = xMux.encodeFrames(frames);
 xMux.encodeFrames(frames).then((uint8array) => ...);
 ```
 
+### Decoding (WebP to Bitmap)
+
+```ts
+(async) decodeWebP(webPData: Uint8Array): Promise<Bitmap>
+```
+
+```js
+const bitmap = await xMux.decodeWebP(uint8array);
+
+// OR using the Promise
+xMux.decodeWebP(uint8array).then((bitmap) => ...);
+```
+
 ### Encoding (Bitmap to WebP)
 
 > The returned Uint8Array stores the data of the encoded
 > WebP image.
 
-`(async) encodeWebP(rgba: Uint32Array, stride: number): Promise<Uint8Array>`
-
-#### Parameters
-
-`rgba`
-
-A Uint32Array that contains color data for each pixel ordered from left to right and then from top to bottom.
-
-`stride`
-
-Specifies the width in pixels for each row in the given RGBA array. (a.k.a. the image width in pixels)
+```ts
+(async) encodeWebP(bitmap: Bitmap): Promise<Uint8Array>
+```
 
 ```js
-const uint8array = await xMux.encodeWebP(rgba, 400);
+const uint8array = await xMux.encodeWebP(bitmap);
 
 // OR using the Promise
-xMux.encodeWebP(rgba, 400).then((uint8array) => ...);
+xMux.encodeWebP(bitmap).then((uint8array) => ...);
 ```
 
 ## Development
