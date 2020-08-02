@@ -1,6 +1,6 @@
 include($ENV{EMSDK}/upstream/emscripten/cmake/Modules/Platform/Emscripten.cmake)
 
-project (webpxmux.wasm)
+project (webpxmux)
 cmake_minimum_required(VERSION 3.5.1)
 set(CMAKE_SKIP_INSTALL_RULES True)
 
@@ -27,8 +27,14 @@ set(WASM_FLAGS "-s WASM=1")
 
 set(EMCC_FLAGS "${WASM_FLAGS} -s MODULARIZE=1 -s EXTRA_EXPORTED_RUNTIME_METHODS='[cwrap, getValue, setValue]' -s LINKABLE=1 -s EXPORT_ALL=0 -s ALLOW_MEMORY_GROWTH=1 -s FORCE_FILESYSTEM=0")
 
+set(TARGET_WEB_FLAGS "${EMCC_FLAGS} -s ENVIRONMENT=web")
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/build")
+
+add_executable(webpxmux-web ${SOURCES})
 add_executable(webpxmux ${SOURCES})
 
 set(CMAKE_EXECUTABLE_SUFFIX ".js")
+
+set_target_properties(webpxmux-web PROPERTIES LINK_FLAGS ${TARGET_WEB_FLAGS})
 set_target_properties(webpxmux PROPERTIES LINK_FLAGS ${EMCC_FLAGS})
