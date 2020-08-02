@@ -3,7 +3,7 @@ const path = require("path");
 const rimraf = require("rimraf");
 const webpack = require("webpack");
 const CopyPlugin = require("copy-webpack-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPlugin = require("terser-webpack-plugin");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const { WebpackCompilerPlugin } = require("webpack-compiler-plugin");
 
@@ -31,13 +31,16 @@ module.exports = {
     extensions: [".ts", ".js"],
   },
   target: "web",
-  externals: { fs: "commonjs fs", ws: "commonjs ws" },
   plugins: [
     new webpack.ProgressPlugin(),
     new CleanWebpackPlugin(),
+    new webpack.NormalModuleReplacementPlugin(
+      /webpxmux\.js/,
+      'webpxmux-web.js'
+    ),
     new CopyPlugin({
       patterns: [{ from: "build/webpxmux.wasm", to: "." }],
-    }),
+    }), 
     new WebpackCompilerPlugin({
       name: "CleanupCompilerPlugin",
       listeners: {
@@ -62,13 +65,23 @@ module.exports = {
   optimization: {
     minimize: true,
     minimizer: [
-      new UglifyJsPlugin({
+      new TerserPlugin({
         include: /\.min\.js$/,
         sourceMap: true,
+        terserOptions: {
+          compress: {
+            dead_code: true,
+            conditionals: true,
+          },
+        },
       }),
     ],
   },
   stats: {
-    warningsFilter: ["entrypoint size limit", "asset size limit", "limit the size"],
+    warningsFilter: [
+      "entrypoint size limit",
+      "asset size limit",
+      "limit the size",
+    ],
   },
 };
