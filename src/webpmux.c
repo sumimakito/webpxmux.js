@@ -42,7 +42,7 @@ int setFrameParam(int duration, int x_offset /* 0 */, int y_offset /* 0 */,
   return 1;
 }
 
-// returns a ptr -> [size_t(8), uint_8(1)...]
+// returns a ptr -> [size_t, uint_8(1)...]
 // uncontrolled free
 EMSCRIPTEN_KEEPALIVE void *encodeFrames(uint32_t *bs) {
   WebPMux *mux = NULL;

@@ -56,7 +56,7 @@ static int MemWriter(const uint8_t *data, size_t data_size,
   return 1;
 }
 
-// returns a ptr -> [size_t(8), uint_8(1)...]
+// returns a ptr -> [size_t, uint_8(1)...]
 // uncontrolled free
 EMSCRIPTEN_KEEPALIVE void *encodeWebP(uint32_t *bs) {
   int errcode = 0;
@@ -115,7 +115,7 @@ ErrorCleanup:
   WebPPictureFree(&picture);
   WebPDataClear(&webp_data);
   free(argb);
-  
+
   if (!ok) {
     return errcode;
   }

@@ -1,7 +1,7 @@
 /// <reference types="emscripten" />
 
 import webPXMuxWasm from "../build/webpxmux";
-import path from "path";
+import webpack from "webpack";
 
 type AlignedByteSize = 1 | 2 | 4 | 8;
 type Ptr = number;
@@ -21,6 +21,9 @@ const ErrorMessages: { [k: number]: string } = {
   [-32]: "failed to add a frame",
   [-33]: "failed to set animation parameters",
   [-34]: "failed to assembly the WebP image",
+
+  [-40]: "failed to decode: VP8 status is not ok",
+  [-41]: "failed to decode: failed to init config",
 };
 
 interface WebPXMuxModule extends EmscriptenModule {
@@ -30,6 +33,7 @@ interface WebPXMuxModule extends EmscriptenModule {
 
   decodeFrames: (ptr: Ptr, size: number) => Ptr;
   encodeFrames: (ptr: Ptr) => Ptr;
+  decodeWebP: (ptr: Ptr, size: number) => Ptr;
   encodeWebP: (ptr: Ptr) => Ptr;
 }
 
@@ -57,8 +61,15 @@ export interface Frames {
   frames: Frame[];
 }
 
+export interface Bitmap {
+  width: number;
+  height: number;
+  rgba: Uint32Array;
+}
+
 class WebPXMux {
   private SIZE_SIZE_T = SIZE_IU32;
+  private SIZE_INT = SIZE_IU32;
 
   private waitRuntimeResolves: ((
     value?: void | PromiseLike<void> | undefined
@@ -73,7 +84,7 @@ class WebPXMux {
         wasmPath
           ? {
               locateFile(_path: string) {
-                if (_path === "webpxmux.wasm") {
+                if (_path.endsWith(".wasm")) {
                   return wasmPath;
                 }
                 return _path;
@@ -88,11 +99,18 @@ class WebPXMux {
       this.Module!.encodeFrames = this.Module!.cwrap("encodeFrames", "number", [
         "number",
       ]);
+      this.Module!.decodeWebP = this.Module!.cwrap("decodeWebP", "number", [
+        "number",
+        "number",
+      ]);
       this.Module!.encodeWebP = this.Module!.cwrap("encodeWebP", "number", [
         "number",
       ]);
       this.SIZE_SIZE_T = toUnsigned(
         this.Module!.cwrap("sizeof_size_t", "number", [])()
+      ) as AlignedByteSize;
+      this.SIZE_INT = toUnsigned(
+        this.Module!.cwrap("sizeof_int", "number", [])()
       ) as AlignedByteSize;
       this._runtimeInitialized = true;
       this.waitRuntimeResolves.map((resolve) => resolve());
@@ -127,6 +145,13 @@ class WebPXMux {
         throw Error(`invalid type with byte length of ${typeByteSize}`);
     }
     return toUnsigned(this.Module!.getValue(ptr, `i${bitSize}`));
+  }
+
+  copyU8aToHeap(u8a: Uint8Array): Ptr {
+    const ptr = this.Module!._malloc(u8a.length * SIZE_IU8);
+    const bytes = new Uint8Array(this.Module!.HEAPU8.buffer, ptr, u8a.length);
+    bytes.set(u8a);
+    return ptr;
   }
 
   copyFBSToHeap(frames: Frames): Ptr {
@@ -167,7 +192,81 @@ class WebPXMux {
     }
     const frames = this.unWrapFBS(bsPtr);
     this.Module!._free(ptr);
+    this.Module!._free(bsPtr);
     return frames;
+  }
+
+  async encodeFrames(frames: Frames) {
+    const bsPtr = this.copyFBSToHeap(frames);
+    const encodedPtr = this.Module!.encodeFrames(bsPtr);
+    this.Module!._free(bsPtr);
+    if (encodedPtr < 0) {
+      throw Error(ErrorMessages[encodedPtr]);
+    }
+    const size = this.getUnsigned(encodedPtr, this.SIZE_SIZE_T);
+    const u8a = new Uint8Array(size / SIZE_IU8).map((_, i) =>
+      this.getUnsigned(encodedPtr + SIZE_IU32 + i * SIZE_IU8, SIZE_IU8)
+    );
+    this.Module!._free(encodedPtr);
+    return u8a;
+  }
+
+  async decodeWebP(webPData: Uint8Array) {
+    const u8aPtr = this.copyU8aToHeap(webPData);
+    const decodedPtr = this.Module!.decodeWebP(
+      u8aPtr,
+      webPData.length * SIZE_IU8
+    );
+    this.Module!._free(u8aPtr);
+    if (decodedPtr < 0) {
+      throw Error(ErrorMessages[decodedPtr]);
+    }
+    let ptr = decodedPtr;
+    const size = this.getUnsigned(ptr, this.SIZE_SIZE_T);
+    ptr += this.SIZE_SIZE_T;
+    const width = this.getUnsigned(ptr, this.SIZE_INT);
+    ptr += this.SIZE_INT;
+    const height = this.getUnsigned(ptr, this.SIZE_INT);
+    ptr += this.SIZE_INT;
+    const rgba = new Uint32Array(size / SIZE_IU32).map((_, i) =>
+      this.getUnsigned(ptr + i * SIZE_IU32, SIZE_IU32)
+    );
+    this.Module!._free(decodedPtr);
+    const bitmap: Bitmap = {
+      width,
+      height,
+      rgba,
+    };
+    return bitmap;
+  }
+
+  async encodeWebP(bitmap: Bitmap) {
+    const frames: Frames = {
+      frameCount: 1,
+      width: bitmap.width,
+      height: bitmap.height,
+      loopCount: 0,
+      bgColor: 0,
+      frames: [
+        {
+          duration: 0,
+          isKeyframe: false,
+          rgba: bitmap.rgba,
+        },
+      ],
+    };
+    const bsPtr = this.copyFBSToHeap(frames);
+    const encodedPtr = this.Module!.encodeWebP(bsPtr);
+    this.Module!._free(bsPtr);
+    if (encodedPtr < 0) {
+      throw Error(ErrorMessages[encodedPtr]);
+    }
+    const size = this.getUnsigned(encodedPtr, this.SIZE_SIZE_T);
+    const u8a = new Uint8Array(size / SIZE_IU8).map((_, i) =>
+      this.getUnsigned(encodedPtr + SIZE_IU32 + i * SIZE_IU8, SIZE_IU8)
+    );
+    this.Module!._free(encodedPtr);
+    return u8a;
   }
 
   private unWrapFBS(ptr: Ptr): Frames {
@@ -211,48 +310,6 @@ class WebPXMux {
       bgColor,
       frames,
     };
-  }
-
-  async encodeFrames(frames: Frames) {
-    const bsPtr = this.copyFBSToHeap(frames);
-    const encodedPtr = this.Module!.encodeFrames(bsPtr);
-    this.Module!._free(bsPtr);
-    if (encodedPtr < 0) {
-      throw Error(ErrorMessages[encodedPtr]);
-    }
-    const size = this.getUnsigned(encodedPtr, this.SIZE_SIZE_T);
-    const u8a = new Uint8Array(size / SIZE_IU8).map((_, i) =>
-      this.getUnsigned(encodedPtr + SIZE_IU32 + i * SIZE_IU8, SIZE_IU8)
-    );
-    return u8a;
-  }
-
-  async encodeWebP(rgba: Uint32Array, stride: number) {
-    const frames: Frames = {
-      frameCount: 1,
-      width: stride,
-      height: rgba.length / stride,
-      loopCount: 0,
-      bgColor: 0,
-      frames: [
-        {
-          duration: 0,
-          isKeyframe: false,
-          rgba: rgba,
-        },
-      ],
-    };
-    const bsPtr = this.copyFBSToHeap(frames);
-    const encodedPtr = this.Module!.encodeWebP(bsPtr);
-    this.Module!._free(bsPtr);
-    if (encodedPtr < 0) {
-      throw Error(ErrorMessages[encodedPtr]);
-    }
-    const size = this.getUnsigned(encodedPtr, this.SIZE_SIZE_T);
-    const u8a = new Uint8Array(size / SIZE_IU8).map((_, i) =>
-      this.getUnsigned(encodedPtr + SIZE_IU32 + i * SIZE_IU8, SIZE_IU8)
-    );
-    return u8a;
   }
 }
 
