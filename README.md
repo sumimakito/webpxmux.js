@@ -120,7 +120,7 @@ await xMux.waitRuntime();
 xMux.waitRuntime().then(...);
 ```
 
-> ⚠️ An Error will be thrown if encoding/muxing/demuxing functions are called before runtime being initialized.
+> ⚠️ An Error will be thrown if encoding/decoding/muxing/demuxing functions are called before runtime being initialized.
 
 ### Waiting for the runtime
 
