@@ -1,6 +1,6 @@
 # WebPXMux.js
 
-A JavaScript library for muxing and demuxing animated WebP images.
+A JavaScript library for muxing and demuxing animated WebP images and encoding and decoding WebP images.
 
 ## Installation
 
