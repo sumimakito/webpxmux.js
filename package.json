@@ -1,6 +1,6 @@
 {
   "name": "webpxmux",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "./lib/src/webpxmux.js",
   "types": "./lib/src/webpxmux.d.ts",
   "author": "Makito <sumimakito@hotmail.com>",

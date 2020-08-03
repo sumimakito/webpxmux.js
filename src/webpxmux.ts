@@ -1,7 +1,6 @@
 /// <reference types="emscripten" />
 
 import webPXMuxWasm from "../build/webpxmux";
-import webpack from "webpack";
 
 type AlignedByteSize = 1 | 2 | 4 | 8;
 type Ptr = number;
