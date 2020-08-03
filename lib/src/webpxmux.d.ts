@@ -18,6 +18,33 @@ export interface Bitmap {
     height: number;
     rgba: Uint32Array;
 }
+export interface WebPConfig {
+    lossless: number;
+    quality: number;
+    method: number;
+    target_size: number;
+    target_PSNR: number;
+    segments: number;
+    sns_strength: number;
+    filter_strength: number;
+    filter_sharpness: number;
+    filter_type: number;
+    autofilter: number;
+    alpha_compression: number;
+    alpha_filtering: number;
+    alpha_quality: number;
+    pass: number;
+    preprocessing: number;
+    partitions: number;
+    partition_limit: number;
+    emulate_jpeg_size: number;
+    thread_level: number;
+    low_memory: number;
+    near_lossless: number;
+    exact: number;
+    use_delta_palette: number;
+    use_sharp_yuv: number;
+}
 declare class WebPXMux {
     private SIZE_SIZE_T;
     private SIZE_INT;
@@ -31,9 +58,11 @@ declare class WebPXMux {
     getUnsigned(ptr: Ptr, typeByteSize: AlignedByteSize): number;
     copyU8aToHeap(u8a: Uint8Array): Ptr;
     copyFBSToHeap(frames: Frames): Ptr;
+    generateWebPConfig(config: WebPConfig): Ptr;
     decodeFrames(webPData: Uint8Array): Promise<Frames>;
     encodeFrames(frames: Frames): Promise<Uint8Array>;
     decodeWebP(webPData: Uint8Array): Promise<Bitmap>;
+    encodeWebPWithConfig(bitmap: Bitmap, config: WebPConfig): Promise<Uint8Array>;
     encodeWebP(bitmap: Bitmap): Promise<Uint8Array>;
     private unWrapFBS;
 }
