@@ -1,18 +1,17 @@
-WebPXMux.js
-======
+# WebPXMux.js
 
 A JavaScript library for muxing and demuxing animated WebP images and encoding and decoding WebP images.
 
 ## Installation
 
 ```bash
-npm i --save webpxmux
+yarn add webpxmux
 ```
 
 OR
 
 ```bash
-yarn add webpxmux
+npm i --save webpxmux
 ```
 
 ## Examples
@@ -306,6 +305,18 @@ Please refer to the [official installation instructions](https://cmake.org/insta
 
 ```bash
 git clone --recurse-submodules https://github.com/SumiMakito/webpxmux.js.git
+```
+
+### Install dependencies
+
+```bash
+yarn
+```
+
+OR
+
+```bash
+npm i
 ```
 
 ### Build WebAssembly
