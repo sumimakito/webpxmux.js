@@ -56,6 +56,108 @@ static int MemWriter(const uint8_t *data, size_t data_size,
   return 1;
 }
 
+// returns a ptr -> WebPConfig *
+// uncontrolled free
+EMSCRIPTEN_KEEPALIVE void *new_webpwrapper_config() {
+  WebPConfig * config = (WebPConfig *)malloc(sizeof(struct WebPConfig));
+  memset((void *)config, 0, sizeof(struct WebPConfig));
+  return config;
+}
+
+#define SET_WEBP_CONFIG_PARAM_INT(parameter_name) \
+void set_webp_config_##parameter_name (WebPConfig * config, int value) {\
+  config->parameter_name = value;\
+}
+
+#define SET_WEBP_CONFIG_PARAM_FLOAT(parameter_name) \
+void set_webp_config_##parameter_name(WebPConfig * config, float value) {\
+  config->parameter_name = value;\
+}
+
+SET_WEBP_CONFIG_PARAM_INT(lossless)
+SET_WEBP_CONFIG_PARAM_FLOAT(quality)
+SET_WEBP_CONFIG_PARAM_INT(method)
+SET_WEBP_CONFIG_PARAM_INT(target_size)
+SET_WEBP_CONFIG_PARAM_FLOAT(target_PSNR)
+SET_WEBP_CONFIG_PARAM_INT(segments)
+SET_WEBP_CONFIG_PARAM_INT(sns_strength)
+SET_WEBP_CONFIG_PARAM_INT(filter_strength)
+SET_WEBP_CONFIG_PARAM_INT(filter_sharpness)
+SET_WEBP_CONFIG_PARAM_INT(filter_type)
+SET_WEBP_CONFIG_PARAM_INT(autofilter)
+SET_WEBP_CONFIG_PARAM_INT(alpha_compression)
+SET_WEBP_CONFIG_PARAM_INT(alpha_filtering)
+SET_WEBP_CONFIG_PARAM_INT(alpha_quality)
+SET_WEBP_CONFIG_PARAM_INT(pass)
+SET_WEBP_CONFIG_PARAM_INT(preprocessing)
+SET_WEBP_CONFIG_PARAM_INT(partitions)
+SET_WEBP_CONFIG_PARAM_INT(partition_limit)
+SET_WEBP_CONFIG_PARAM_INT(emulate_jpeg_size)
+SET_WEBP_CONFIG_PARAM_INT(thread_level)
+SET_WEBP_CONFIG_PARAM_INT(low_memory)
+SET_WEBP_CONFIG_PARAM_INT(near_lossless)
+SET_WEBP_CONFIG_PARAM_INT(exact)
+SET_WEBP_CONFIG_PARAM_INT(use_delta_palette)
+SET_WEBP_CONFIG_PARAM_INT(use_sharp_yuv)
+
+#define WEBP_HINT_DEFAULT_TYPE  1
+#define WEBP_HINT_PICTURE_TYPE  2
+#define WEBP_HINT_PHOTO_TYPE    3
+#define WEBP_HINT_GRAPH_TYPE    4
+
+void set_webp_config_image_hint(WebPConfig * config, int value) {
+  switch (value) {
+    case WEBP_HINT_DEFAULT_TYPE:
+      config->image_hint = WEBP_HINT_DEFAULT;
+      break;
+    case WEBP_HINT_PICTURE_TYPE:
+      config->image_hint = WEBP_HINT_PICTURE;
+      break;
+    case WEBP_HINT_PHOTO_TYPE:
+      config->image_hint = WEBP_HINT_PHOTO;
+      break;
+    case WEBP_HINT_GRAPH_TYPE:
+      config->image_hint = WEBP_HINT_GRAPH;
+      break;
+    default:
+      break;
+  }
+}
+
+#define WEBP_PRESET_DEFAULT_TYPE  1
+#define WEBP_PRESET_PICTURE_TYPE  2
+#define WEBP_PRESET_PHOTO_TYPE    3
+#define WEBP_PRESET_DRAWING_TYPE  4
+#define WEBP_PRESET_ICON_TYPE     5
+#define WEBP_PRESET_TEXT_TYPE     6
+
+void set_webp_config_preset(WebPConfig * config, int value, float quality_factor) {
+  WebPPreset preset = WEBP_PRESET_DEFAULT;
+  switch (value) {
+    case WEBP_PRESET_DEFAULT_TYPE:
+      preset = WEBP_PRESET_DEFAULT;
+      break;
+    case WEBP_PRESET_PICTURE_TYPE:
+      preset = WEBP_PRESET_PICTURE;
+      break;
+    case WEBP_PRESET_PHOTO_TYPE:
+      preset = WEBP_PRESET_PHOTO;
+      break;
+    case WEBP_PRESET_DRAWING_TYPE:
+      preset = WEBP_PRESET_DRAWING;
+      break;
+    case WEBP_PRESET_ICON_TYPE:
+      preset = WEBP_PRESET_ICON;
+      break;
+    case WEBP_PRESET_TEXT_TYPE:
+      preset = WEBP_PRESET_TEXT;
+      break;
+    default:
+      break;
+  }
+  WebPConfigPreset(config, preset, quality_factor);
+}
+
 // returns a ptr -> [size_t, uint_8(1)...]
 // uncontrolled free
 EMSCRIPTEN_KEEPALIVE void *encodeWebP(uint32_t *bs) {
@@ -94,6 +196,77 @@ EMSCRIPTEN_KEEPALIVE void *encodeWebP(uint32_t *bs) {
   picture.custom_ptr = (void *)&webp_data;
 
   if (!WebPEncode(&config, &picture)) {
+    // fprintf(stderr, "Error! Cannot encode picture as WebP\n");
+    // fprintf(stderr, "Error code: %d (%s)\n", picture.error_code,
+    // kErrorMessages_VP8_ENC_ERROR_LAST[picture.error_code]);
+    ok = 0;
+    errcode = E_CANNOT_ENCODE;
+    goto ErrorCleanup;
+  }
+
+  void *encoded = NULL;
+
+  if (ok) {
+    encoded = malloc(sizeof(webp_data.size) + webp_data.size);
+    memcpy(encoded, &webp_data.size, sizeof(webp_data.size));
+    memcpy(encoded + sizeof(webp_data.size), webp_data.bytes, webp_data.size);
+  }
+
+ErrorCleanup:
+  WebPFree(picture.extra_info);
+  WebPPictureFree(&picture);
+  WebPDataClear(&webp_data);
+  free(argb);
+
+  if (!ok) {
+    return errcode;
+  }
+  return encoded;
+}
+
+// returns a ptr -> [size_t, uint_8(1)...]
+// uncontrolled free
+EMSCRIPTEN_KEEPALIVE void *encodeWebPWithConfig(uint32_t *bs, WebPConfig * config) {
+  int errcode = 0;
+  int ok = 1;
+  WebPPicture picture;
+  WebPData webp_data;
+  uint32_t *argb = NULL;
+
+  if (config == NULL) {
+    ok = 0;
+    errcode = E_CANNOT_ENCODE;
+    return ok;
+  }
+
+  WebPDataInit(&webp_data);
+
+  if (!WebPPictureInit(&picture)) {
+    // fprintf(stderr, "Error! Version mismatch!\n");
+    ok = 0;
+    errcode = E_CANNOT_ENCODE;
+    return ok;
+  }
+
+  picture.width = bs[2];
+  picture.height = bs[3];
+
+  // RGBA to ARGB
+  argb = malloc(picture.width * picture.height * sizeof(uint32_t));
+  memcpy(argb, (uint32_t *)(bs + FBS_HEADER + FBS_FRAME_HEADER),
+         picture.width * picture.height * sizeof(uint32_t));
+  for (int i = 0; i < picture.width * picture.height; i++) {
+    uint32_t *pixel = (uint32_t *)(argb + i);
+    *pixel = (((*pixel & 0xff) << 24) | (*pixel >> 8));
+  }
+
+  picture.use_argb = !!config->lossless;
+  picture.argb = argb;
+  picture.argb_stride = picture.width;
+  picture.writer = MemWriter;
+  picture.custom_ptr = (void *)&webp_data;
+
+  if (!WebPEncode(config, &picture)) {
     // fprintf(stderr, "Error! Cannot encode picture as WebP\n");
     // fprintf(stderr, "Error code: %d (%s)\n", picture.error_code,
     // kErrorMessages_VP8_ENC_ERROR_LAST[picture.error_code]);
