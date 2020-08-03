@@ -18,9 +18,10 @@ jobs:
       - uses: actions/setup-node@v1
         with:
           node-version: 12
-      - uses: lovasoa/setup-emscripten@master
+      - uses: mymindstorm/setup-emsdk@v6
         with:
-          emscripten-version: "1.39.19"
+          version: 1.39.19
+          actions-cache-folder: 'emsdk-cache'
       - run: npm install
       - run: npm run build
       #   run: |
