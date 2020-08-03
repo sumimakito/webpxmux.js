@@ -27,12 +27,20 @@ jobs:
       - id: npm-cache
         run: |
           echo "::set-output name=dir::$(npm config get cache)"
-      - uses: actions/cache@v2
+      - name: NPM Cache
+        uses: actions/cache@v2
         with:
           path: ${{ steps.npm-cache.outputs.dir }}
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
+      - name: CMake Cache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.GITHUB_WORKSPACE }}/CMakeFiles
+          key: ${{ runner.os }}-cmakefiles-${{ hashFiles('**/CMakeLists.txt', '**/CMakeFiles', '**/src') }}
+          restore-keys: |
+            ${{ runner.os }}-cmakefiles-
       - run: npm install
       - run: npm run build
       - run: |
