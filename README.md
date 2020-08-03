@@ -1,4 +1,5 @@
-# WebPXMux.js
+WebPXMux.js
+======
 
 A JavaScript library for muxing and demuxing animated WebP images and encoding and decoding WebP images.
 
@@ -52,8 +53,8 @@ Output:
 ### Using in browsers
 
 When using WebPXMux in browsers, the required WebAssembly cannot be auto
-looked up. Thus, you have to specify the path (relative to website root) 
-to the WebAssembly file using the constructor. (The specified 
+looked up. Thus, you have to specify the path (relative to website root)
+to the WebAssembly file using the constructor. (The specified
 WebAssembly file path should be accessible from the browser.)
 
 ```ts
@@ -88,7 +89,7 @@ require(["./dist/webpxmux"], function (WebPXMux) {
 
 ```js
 const WebPXMux = require("webpxmux/dist/webpxmux");
-const xMux = WebPXMux("./dist/webpxmux.wasm") // <- IMPORTANT
+const xMux = WebPXMux("./dist/webpxmux.wasm"); // <- IMPORTANT
 ```
 
 ## Usage
@@ -326,3 +327,7 @@ yarn build:node
 ```bash
 yarn build:web
 ```
+
+## License
+
+WebPXMux.js is released under the MIT license.
