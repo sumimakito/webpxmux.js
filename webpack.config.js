@@ -36,11 +36,11 @@ module.exports = {
     new CleanWebpackPlugin(),
     new webpack.NormalModuleReplacementPlugin(
       /webpxmux\.js/,
-      'webpxmux-web.js'
+      path.resolve(__dirname, "build/webpxmux-web.js")
     ),
     new CopyPlugin({
       patterns: [{ from: "build/webpxmux.wasm", to: "." }],
-    }), 
+    }),
     new WebpackCompilerPlugin({
       name: "CleanupCompilerPlugin",
       listeners: {
