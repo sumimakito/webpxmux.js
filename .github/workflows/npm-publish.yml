@@ -6,7 +6,7 @@ name: Node.js Package
 on:
   push:
     branches:
-      - master
+      - develop
   release:
     types: [created]
 
@@ -26,14 +26,13 @@ jobs:
           actions-cache-folder: "emsdk-cache"
       - run: npm install
       - run: npm run build
-      #   run: |
-      #     git config --local user.email "action@github.com"
-      #     git config --local user.name "GitHub Action"
-      #     git commit -m "Add changes" -a
-      # - name: Push changes
-      #   uses: ad-m/github-push-action@master
-      #   with:
-      #     github_token: ${{ secrets.GITHUB_TOKEN }}
+      - run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git commit -m "Auto update pre-built results" -a
+      - uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
   # publish-npm:
   #   needs: build
   #   runs-on: ubuntu-latest
