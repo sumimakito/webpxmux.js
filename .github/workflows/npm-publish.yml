@@ -31,20 +31,13 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - name: CMakeFiles Cache
-        uses: actions/cache@v2
-        with:
-          path: CMakeFiles
-          key: ${{ runner.os }}-cmakefiles-${ { hashFiles('**/CMakeLists.txt') }}-${ { hashFiles('**/CMakeCache.txt') }}-${ { hashFiles('**/CMakeFiles') } }
-          restore-keys: |
-            ${{ runner.os }}-cmakefiles-
       - run: npm install
       - run: npm run build
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add --all .
-          git commit -m "Auto update pre-built results" -a
+          git diff-index --quiet HEAD || git commit -m "Auto update pre-built results" -a
       - uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
