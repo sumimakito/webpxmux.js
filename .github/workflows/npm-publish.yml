@@ -31,16 +31,16 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - id: cmake_timestamp
-        shell: cmake -P {0}
-        run: |
-          string(TIMESTAMP current_date "%Y-%m-%d-%H;%M;%S" UTC)
-          message("::set-output name=timestamp::${current_date}")
+      - id: time
+        uses: nanzm/get-time-action@v1.0
+        with:
+          timeZone: 0
+          format: 'YYYY-MM-DD-HH-mm-ss'
       - name: CMake Cache
         uses: actions/cache@v2
         with:
           path: CMakeFiles
-          key: ${{ runner.os }}-cmake-${ { steps.cmake_timestamp.outputs.timestamp } }
+          key: ${{ runner.os }}-cmake-${ { steps.time.outputs.time } }
           restore-keys: |
             ${{ runner.os }}-cmake-
       - run: npm install
