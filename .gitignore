@@ -5,6 +5,8 @@
 /*.webp
 /index.html
 
+/emsdk-cache
+
 /Makefile
 
 # Logs
