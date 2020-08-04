@@ -35,7 +35,7 @@ module.exports = {
     new webpack.ProgressPlugin(),
     new CleanWebpackPlugin(),
     new webpack.NormalModuleReplacementPlugin(
-      /webpxmux\.js/,
+      /build\/webpxmux\.js/,
       path.resolve(__dirname, "build/webpxmux-web.js")
     ),
     new CopyPlugin({
