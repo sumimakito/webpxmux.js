@@ -35,7 +35,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: CMakeFiles
-          key: ${{ runner.os }}-cmakefiles-${ { hashFiles('**/CMakeLists.txt', '**/CMakeCache.txt', '**/CMakeFiles') } }
+          key: ${{ runner.os }}-cmakefiles-${ { hashFiles('**/CMakeLists.txt') }}-${ { hashFiles('**/CMakeCache.txt') }}-${ { hashFiles('**/CMakeFiles') } }
           restore-keys: |
             ${{ runner.os }}-cmakefiles-
       - run: npm install
