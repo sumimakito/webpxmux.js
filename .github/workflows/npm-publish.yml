@@ -32,7 +32,11 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-node-
       - run: npm install
-      - run: npm run build
+      - run: npm run build:make
+      - run: npm run build:node
+      - run: ls -l build
+      - run: ls -l lib
+      - run: npm run build:web
       - run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
