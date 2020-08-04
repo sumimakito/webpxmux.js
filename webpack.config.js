@@ -23,7 +23,7 @@ module.exports = {
             },
           },
         ],
-        exclude: [/node_modules/],
+        exclude: [/node_modules/, path.resolve(__dirname, 'lib')],
       },
     ],
   },
