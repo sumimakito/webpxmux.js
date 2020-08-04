@@ -31,18 +31,13 @@ jobs:
           key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-
-      - id: time
-        uses: nanzm/get-time-action@v1.0
-        with:
-          timeZone: 0
-          format: 'YYYY-MM-DD-HH-mm-ss'
-      - name: CMake Cache
+      - name: CMakeFiles Cache
         uses: actions/cache@v2
         with:
           path: CMakeFiles
-          key: ${{ runner.os }}-cmake-${ { steps.time.outputs.time } }
+          key: ${{ runner.os }}-cmakefiles-${ { hashFiles('**/CMakeLists.txt', '**/CMakeCache.txt', '**/CMakeFiles') } }
           restore-keys: |
-            ${{ runner.os }}-cmake-
+            ${{ runner.os }}-cmakefiles-
       - run: npm install
       - run: npm run build
       - run: |
