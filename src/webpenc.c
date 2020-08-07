@@ -64,6 +64,40 @@ EMSCRIPTEN_KEEPALIVE void *new_webpwrapper_config() {
   return config;
 }
 
+#define WEBP_PRESET_DEFAULT_TYPE  1
+#define WEBP_PRESET_PICTURE_TYPE  2
+#define WEBP_PRESET_PHOTO_TYPE    3
+#define WEBP_PRESET_DRAWING_TYPE  4
+#define WEBP_PRESET_ICON_TYPE     5
+#define WEBP_PRESET_TEXT_TYPE     6
+
+void load_webp_config_preset(WebPConfig * config, int value, float quality_factor) {
+  WebPPreset preset = WEBP_PRESET_DEFAULT;
+  switch (value) {
+    case WEBP_PRESET_DEFAULT_TYPE:
+      preset = WEBP_PRESET_DEFAULT;
+      break;
+    case WEBP_PRESET_PICTURE_TYPE:
+      preset = WEBP_PRESET_PICTURE;
+      break;
+    case WEBP_PRESET_PHOTO_TYPE:
+      preset = WEBP_PRESET_PHOTO;
+      break;
+    case WEBP_PRESET_DRAWING_TYPE:
+      preset = WEBP_PRESET_DRAWING;
+      break;
+    case WEBP_PRESET_ICON_TYPE:
+      preset = WEBP_PRESET_ICON;
+      break;
+    case WEBP_PRESET_TEXT_TYPE:
+      preset = WEBP_PRESET_TEXT;
+      break;
+    default:
+      break;
+  }
+  WebPConfigPreset(config, preset, quality_factor);
+}
+
 #define SET_WEBP_CONFIG_PARAM_INT(parameter_name) \
 void set_webp_config_##parameter_name (WebPConfig * config, int value) {\
   config->parameter_name = value;\
@@ -72,6 +106,16 @@ void set_webp_config_##parameter_name (WebPConfig * config, int value) {\
 #define SET_WEBP_CONFIG_PARAM_FLOAT(parameter_name) \
 void set_webp_config_##parameter_name(WebPConfig * config, float value) {\
   config->parameter_name = value;\
+}
+
+#define GET_WEBP_CONFIG_PARAM_INT(parameter_name) \
+int get_webp_config_##parameter_name (WebPConfig * config) {\
+  return config->parameter_name;\
+}
+
+#define GET_WEBP_CONFIG_PARAM_FLOAT(parameter_name) \
+float get_webp_config_##parameter_name(WebPConfig * config) {\
+  return config->parameter_name;\
 }
 
 SET_WEBP_CONFIG_PARAM_INT(lossless)
@@ -99,6 +143,32 @@ SET_WEBP_CONFIG_PARAM_INT(near_lossless)
 SET_WEBP_CONFIG_PARAM_INT(exact)
 SET_WEBP_CONFIG_PARAM_INT(use_delta_palette)
 SET_WEBP_CONFIG_PARAM_INT(use_sharp_yuv)
+
+GET_WEBP_CONFIG_PARAM_INT(lossless)
+GET_WEBP_CONFIG_PARAM_FLOAT(quality)
+GET_WEBP_CONFIG_PARAM_INT(method)
+GET_WEBP_CONFIG_PARAM_INT(target_size)
+GET_WEBP_CONFIG_PARAM_FLOAT(target_PSNR)
+GET_WEBP_CONFIG_PARAM_INT(segments)
+GET_WEBP_CONFIG_PARAM_INT(sns_strength)
+GET_WEBP_CONFIG_PARAM_INT(filter_strength)
+GET_WEBP_CONFIG_PARAM_INT(filter_sharpness)
+GET_WEBP_CONFIG_PARAM_INT(filter_type)
+GET_WEBP_CONFIG_PARAM_INT(autofilter)
+GET_WEBP_CONFIG_PARAM_INT(alpha_compression)
+GET_WEBP_CONFIG_PARAM_INT(alpha_filtering)
+GET_WEBP_CONFIG_PARAM_INT(alpha_quality)
+GET_WEBP_CONFIG_PARAM_INT(pass)
+GET_WEBP_CONFIG_PARAM_INT(preprocessing)
+GET_WEBP_CONFIG_PARAM_INT(partitions)
+GET_WEBP_CONFIG_PARAM_INT(partition_limit)
+GET_WEBP_CONFIG_PARAM_INT(emulate_jpeg_size)
+GET_WEBP_CONFIG_PARAM_INT(thread_level)
+GET_WEBP_CONFIG_PARAM_INT(low_memory)
+GET_WEBP_CONFIG_PARAM_INT(near_lossless)
+GET_WEBP_CONFIG_PARAM_INT(exact)
+GET_WEBP_CONFIG_PARAM_INT(use_delta_palette)
+GET_WEBP_CONFIG_PARAM_INT(use_sharp_yuv)
 
 #define WEBP_HINT_DEFAULT_TYPE  1
 #define WEBP_HINT_PICTURE_TYPE  2
@@ -294,3 +364,4 @@ ErrorCleanup:
   }
   return encoded;
 }
+
