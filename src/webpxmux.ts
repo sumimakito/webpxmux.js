@@ -37,6 +37,7 @@ interface WebPXMuxModule extends EmscriptenModule {
   encodeWebPWithConfig: (ptr: Ptr, config: Ptr) => Ptr;
 
   newWebPConfig: () => Ptr;
+  loadWebPConfigPreset: (ptr: Ptr, presetIndex: number, quality: number) => Ptr;
   setWebPConfigLossless: (ptr: Ptr, value: number) => void;
   setWebPConfigQuality: (ptr: Ptr, value: number) => void;
   setWebPConfigMethod: (ptr: Ptr, value: number) => void;
@@ -62,6 +63,32 @@ interface WebPXMuxModule extends EmscriptenModule {
   setWebPConfigExact: (ptr: Ptr, value: number) => void;
   setWebPConfigUseDeltaPalette: (ptr: Ptr, value: number) => void;
   setWebPConfigUseSharpYUV: (ptr: Ptr, value: number) => void;
+
+  getWebPConfigLossless: (ptr: Ptr) => number;
+  getWebPConfigQuality: (ptr: Ptr) => number;
+  getWebPConfigMethod: (ptr: Ptr) => number;
+  getWebPConfigTargetSize: (ptr: Ptr) => number;
+  getWebPConfigTargetPSNR: (ptr: Ptr) => number;
+  getWebPConfigSegments: (ptr: Ptr) => number;
+  getWebPConfigSNSStrength: (ptr: Ptr) => number;
+  getWebPConfigFilterStrength: (ptr: Ptr) => number;
+  getWebPConfigFilterSharpness: (ptr: Ptr) => number;
+  getWebPConfigFilterType: (ptr: Ptr) => number;
+  getWebPConfigAutoFilter: (ptr: Ptr) => number;
+  getWebPConfigAlphaCompression: (ptr: Ptr) => number;
+  getWebPConfigAlphaFiltering: (ptr: Ptr) => number;
+  getWebPConfigAlphaQuality: (ptr: Ptr) => number;
+  getWebPConfigPass: (ptr: Ptr) => number;
+  getWebPConfigPreprocessing: (ptr: Ptr) => number;
+  getWebPConfigPartitions: (ptr: Ptr) => number;
+  getWebPConfigPartitionsLimit: (ptr: Ptr) => number;
+  getWebPConfigEmulateJPEGSize: (ptr: Ptr) => number;
+  getWebPConfigThreadLevel: (ptr: Ptr) => number;
+  getWebPConfigLowMemory: (ptr: Ptr) => number;
+  getWebPConfigNearLossless: (ptr: Ptr) => number;
+  getWebPConfigExact: (ptr: Ptr) => number;
+  getWebPConfigUseDeltaPalette: (ptr: Ptr) => number;
+  getWebPConfigUseSharpYUV: (ptr: Ptr) => number;
 }
 
 const toUnsigned = (n: number) => n >>> 0;
@@ -163,10 +190,21 @@ class WebPXMux {
       this.Module!.newWebPConfig = this.Module!.cwrap(
         "new_webpwrapper_config",
         "number",
+<<<<<<< Updated upstream
         []
       );
       this.Module!.encodeWebPWithConfig = this.Module!.cwrap(
         "encodeWebPWithConfig",
+=======
+        "number"
+      ]);
+      this.Module!.loadWebPConfigPreset = this.Module!.cwrap("load_webp_config_preset", "number", [
+        "number",
+        "number",
+        "number"
+      ]);
+      this.Module!.setWebPConfigLossless = this.Module!.cwrap("set_webp_config_lossless", "number", [
+>>>>>>> Stashed changes
         "number",
         ["number", "number"]
       );
@@ -288,6 +326,7 @@ class WebPXMux {
       this.Module!.setWebPConfigUseDeltaPalette = this.Module!.cwrap(
         "set_webp_config_use_delta_palette",
         "number",
+<<<<<<< Updated upstream
         ["number", "number"]
       );
       this.Module!.setWebPConfigUseSharpYUV = this.Module!.cwrap(
@@ -295,6 +334,137 @@ class WebPXMux {
         "number",
         ["number", "number"]
       );
+=======
+        "number"
+      ]);
+
+      this.Module!.getWebPConfigLossless = this.Module!.cwrap(
+        "get_webp_config_lossless",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigQuality = this.Module!.cwrap(
+        "get_webp_config_quality",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigMethod = this.Module!.cwrap(
+        "get_webp_config_method",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigTargetSize = this.Module!.cwrap(
+        "get_webp_config_target_size",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigTargetPSNR = this.Module!.cwrap(
+        "get_webp_config_target_PSNR",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigSegments = this.Module!.cwrap(
+        "get_webp_config_segments",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigSNSStrength = this.Module!.cwrap(
+        "get_webp_config_sns_strength",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigFilterStrength = this.Module!.cwrap(
+        "get_webp_config_filter_strength",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigFilterSharpness = this.Module!.cwrap(
+        "get_webp_config_filter_sharpness",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigFilterType = this.Module!.cwrap(
+        "get_webp_config_filter_type",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigAutoFilter = this.Module!.cwrap(
+        "get_webp_config_autofilter",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigAlphaCompression = this.Module!.cwrap(
+        "get_webp_config_alpha_compression",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigAlphaFiltering = this.Module!.cwrap(
+        "get_webp_config_alpha_filtering",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigAlphaQuality = this.Module!.cwrap(
+        "get_webp_config_alpha_quality",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigPass = this.Module!.cwrap(
+        "get_webp_config_pass",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigPreprocessing = this.Module!.cwrap(
+        "get_webp_config_preprocessing",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigPartitions = this.Module!.cwrap(
+        "get_webp_config_partitions",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigPartitionsLimit = this.Module!.cwrap(
+        "get_webp_config_partition_limit",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigEmulateJPEGSize = this.Module!.cwrap(
+        "get_webp_config_emulate_jpeg_size",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigThreadLevel = this.Module!.cwrap(
+        "get_webp_config_thread_level",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigLowMemory = this.Module!.cwrap(
+        "get_webp_config_low_memory",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigNearLossless = this.Module!.cwrap(
+        "get_webp_config_near_lossless",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigExact = this.Module!.cwrap(
+        "get_webp_config_exact",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigUseDeltaPalette = this.Module!.cwrap(
+        "get_webp_config_use_delta_palette",
+        "number",
+        ["number"]
+      );
+      this.Module!.getWebPConfigUseSharpYUV = this.Module!.cwrap(
+        "get_webp_config_use_sharp_yuv",
+        "number",
+        ["number"]
+      );
+
+>>>>>>> Stashed changes
       this.SIZE_SIZE_T = toUnsigned(
         this.Module!.cwrap("sizeof_size_t", "number", [])()
       ) as AlignedByteSize;
@@ -396,6 +566,96 @@ class WebPXMux {
     this.Module!.setWebPConfigUseDeltaPalette(ptr, config.use_delta_palette);
     this.Module!.setWebPConfigUseSharpYUV(ptr, config.use_sharp_yuv);
     return ptr;
+  }
+
+  newEmptyWebPConfig(): WebPConfig {
+    var config: WebPConfig = {
+      lossless: 0,
+      quality: 0,
+      method: 0,
+      target_size: 0,
+      target_PSNR: 0,
+      segments: 0,
+      sns_strength: 0,
+      filter_strength: 0,
+      filter_sharpness: 0,
+      filter_type: 0,
+      autofilter: 0,
+      alpha_compression: 0,
+      alpha_filtering: 0,
+      alpha_quality: 0,
+      pass: 0,
+      preprocessing: 0,
+      partitions: 0,
+      partition_limit: 0,
+      emulate_jpeg_size: 0,
+      thread_level: 0,
+      low_memory: 0,
+      near_lossless: 0,
+      exact: 0,
+      use_delta_palette: 0,
+      use_sharp_yuv: 0
+    }
+    return config
+  }
+
+  loadWebPConfigPreset(presetName: string, qualityFactor: number): WebPConfig {
+    var config = this.newEmptyWebPConfig();
+    const configPtr = this.Module!.newWebPConfig();
+    var preset = 1;
+    switch (presetName) {
+      case "picture": {
+        preset = 2;
+        break;
+      }
+      case "photo": {
+        preset = 3;
+        break;
+      }
+      case "drawing": {
+        preset = 4;
+        break;
+      }
+      case "icon": {
+        preset = 5;
+        break;
+      }
+      case "text": {
+        preset = 6;
+        break;
+      }
+      default: {
+        break;
+      }
+    }
+    this.Module!.loadWebPConfigPreset(configPtr, preset, qualityFactor);
+    config.lossless = this.Module!.getWebPConfigLossless(configPtr);
+    config.quality = this.Module!.getWebPConfigQuality(configPtr);
+    config.method = this.Module!.getWebPConfigMethod(configPtr);
+    config.target_size = this.Module!.getWebPConfigTargetSize(configPtr);
+    config.target_PSNR = this.Module!.getWebPConfigTargetPSNR(configPtr);
+    config.segments = this.Module!.getWebPConfigSegments(configPtr);
+    config.sns_strength = this.Module!.getWebPConfigSNSStrength(configPtr);
+    config.filter_strength = this.Module!.getWebPConfigFilterStrength(configPtr);
+    config.filter_sharpness = this.Module!.getWebPConfigFilterSharpness(configPtr);
+    config.filter_type = this.Module!.getWebPConfigFilterType(configPtr);
+    config.autofilter = this.Module!.getWebPConfigAutoFilter(configPtr);
+    config.alpha_compression = this.Module!.getWebPConfigAlphaCompression(configPtr);
+    config.alpha_filtering = this.Module!.getWebPConfigAlphaFiltering(configPtr);
+    config.alpha_quality = this.Module!.getWebPConfigAlphaQuality(configPtr);
+    config.pass = this.Module!.getWebPConfigPass(configPtr);
+    config.preprocessing = this.Module!.getWebPConfigPreprocessing(configPtr);
+    config.partitions = this.Module!.getWebPConfigPartitions(configPtr);
+    config.partition_limit = this.Module!.getWebPConfigPartitionsLimit(configPtr);
+    config.emulate_jpeg_size = this.Module!.getWebPConfigEmulateJPEGSize(configPtr);
+    config.thread_level = this.Module!.getWebPConfigThreadLevel(configPtr);
+    config.low_memory = this.Module!.getWebPConfigLowMemory(configPtr);
+    config.near_lossless = this.Module!.getWebPConfigNearLossless(configPtr);
+    config.exact = this.Module!.getWebPConfigExact(configPtr);
+    config.use_delta_palette = this.Module!.getWebPConfigUseDeltaPalette(configPtr);
+    config.use_sharp_yuv = this.Module!.getWebPConfigUseSharpYUV(configPtr);
+    this.Module!._free(configPtr);
+    return config;
   }
 
   async decodeFrames(webPData: Uint8Array) {
